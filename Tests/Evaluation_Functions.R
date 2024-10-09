@@ -152,7 +152,7 @@ fun_dq_df<-function(time_period,cryptos_contained,aoe=FALSE)
 
 CPAtest <- function(loss1,loss2,tau,alpha,choice,sign_level=0.05,ret_rate=FALSE,ret_table=FALSE,print_it=TRUE,ret_numbers=FALSE){
   
-  #  This function performs the asymptotic Conditional Predictive Ability Test
+  #  This function performs the asymptotic Conditional Predictive Ability Test and is adapted from Giacomini and White
   #
   #  INPUTS: loss1 and loss2: Tx1 vectors of losses over the out of sample period for the two models under consideration
   #          tau:             the forecast horizon
