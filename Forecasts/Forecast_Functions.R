@@ -7,53 +7,6 @@ library(zoo)
 
 
 
-#df_fit, df_pred are data_frames with variable price and covariates
-compute_model_preds<-function(df_fit,df_pred,tau,compute_cav_hist_gjr=TRUE){
-  
-  #get data in format
-  y_fit<-df_fit$Ret
-  x_fit<-df_fit[,!colnames(df_fit) %in% c("Ret","time")]
-  x_pred<-df_pred[,!colnames(df_pred) %in% c("Ret","time")]
-  y_pred<-df_pred$Ret
-  
-  x_base_fit<-x_fit %>% select(Lagged_ret,sd_3,sd_7,sd_30,sd_60)
-  x_base_pred<-x_pred %>% select(Lagged_ret,sd_3,sd_7,sd_30,sd_60)
-  
-  
-  
-  #Quantile Regression
-  print("QR start")
-  qr_quantiles<-NA
-  try({  rqfit <- rq(y_fit ~ .,data=x_fit,tau = tau)
-  qr_quantiles <- predict(rqfit,x_pred)})
-  qr_imp<-NA
-  try({qr_imp<-summary(rqfit,se="iid")$coefficients[,c(1,4)]}) #gives out of memory error for anything besides iid
-  qr_quantiles_base<-NA
-  try({  rqfit_base <- rq(y_fit ~ .,data=x_base_fit,tau = tau)
-  qr_quantiles_base <- predict(rqfit_base,x_base_pred)})
-  
-  
-  
-  
-  
-  list_fin<-list(True_Ret=y_pred, 
-                 QRF=quantregForest_quantiles, 
-                 GRF=grf_quantiles$predictions, 
-                 QR=qr_quantiles, 
-                 GARCH_plain=forecasts_var_gjr,
-                 GARCH_cov=forecasts_var_x, 
-                 Hist=hist_quantiles, 
-                 Gauss = quantiles_gauss, 
-                 CAV = caviar_quantiles,
-                 QRF_base=qrf_quantiles_base,
-                 GRF_base=grf_quantiles_base,
-                 QR_base=qr_quantiles_base,
-                 Var_imp_grf = var_imp, 
-                 Var_imp_qr=qr_imp)
-  return(list_fin)
-  
-}   
-
 
 #function to generate returns
 
