@@ -50,7 +50,7 @@ list_final<-foreach(j=1:length(crypto_data_cleaned),.combine = list,.multicombin
     list_fc <- list()
     for (i in 1:oos_period) {
       print(paste0(i, " out of ", oos_period))
-      set.seed(20240422 + i)
+      set.seed(20220427 + i)
       df_fit <- df_crypto[i:(effective_est_window + i - 1), ]
       df_pred <- df_crypto[effective_est_window + i, ]
       
