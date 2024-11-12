@@ -20,7 +20,7 @@ library(rugarch)
 #load and prep data
 
 load("Crypto_Data_Raw.RData")
-source("Forecast_Functions_cav.R")
+source("Forecast_functions_cav.R")
 
 
 ######################
