@@ -9,9 +9,11 @@ Folder structure and main files include:
 	- Various functions_xx files: contains functions that are required for respective scripts
 
 
-Data for cryptocurrency application can be downloaded from coinmetrics.io. The raw data that was downloaded on 2024-04-07 is in the folder Raw_Data. The data we have cleaned for the paper is in the folder Cleaned_Data. This data is free to share and adapt under the licence CC BY-NC 4.0  (ATTRIBUTION-NONCOMMERCIAL 4.0 INTERNATIONAL, available at https://creativecommons.org/licenses/by-nc/4.0/). 
+Data for cryptocurrency application can be downloaded from coinmetrics.io. The data that was downloaded on 2024-04-07 and is used in the paper is in the folder Cleaned_Data. This data is free to share and adapt under the licence CC BY-NC 4.0  (ATTRIBUTION-NONCOMMERCIAL 4.0 INTERNATIONAL, available at https://creativecommons.org/licenses/by-nc/4.0/). 
 
 Data for simulations is replicable with given seed.
+
+The simulations and the forecasts were computed on a standard CPU with 48 kernels using parallel computing. The approximate runtime for the simulations is 2 days.
 
 
 The code for each figure and table of the paper can be in the Folder named in brackets. The order of tables and figures is according to their appearance in the paper. 
