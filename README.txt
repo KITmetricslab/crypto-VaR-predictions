@@ -13,8 +13,11 @@ Data for cryptocurrency application can be downloaded from coinmetrics.io. The d
 
 Data for simulations is replicable with given seed.
 
-The simulations and the forecasts were computed on a standard CPU with 48 kernels using parallel computing. The approximate runtime for the simulations is 2 days.
+The simulations and the forecasts were computed on a standard CPU with 48 kernels using parallel computing. 
 
+The approximate runtime for the simulations is 4 days.
+The approximate runtime for the forecasts without Caviar is 2 days.
+The approximate runtime for the forecasts for Caviar is 2 days.
 
 The code for each figure and table of the paper can be in the Folder named in brackets. The order of tables and figures is according to their appearance in the paper. 
 
