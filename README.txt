@@ -23,6 +23,8 @@ The approximate runtime for the forecasts without Caviar is 2 days.
 The approximate runtime for the forecasts for Caviar and Caviar asymmetric is 1,5 days each.
 The approximate runtime for the SAV Simulation with differnet covariate combinations (Table 3) is 1 day.
 
+CLONING REPO WITH GIT LFS
+Two files are uploaded with Git LFS: Cleaned_Data/Forecasts/final_data_combined_0.05_500_2024-11-20.RData and Cleaned_Data/Forecasts/final_data_0.05_2024-05-13_all.RData. In order to clone the repository correctly, it is necessary install Git LFS first.
 
 FIGURES AND TABLES
 The code for each figure and table of the paper can be found in the R-file (with path) named in brackets. The order of tables and figures in the list below is according to their appearance in the paper. 
