@@ -354,7 +354,7 @@ fun_sum_crypto<-function(names_of_ind=NULL)
       {
         #print(j)
         rets_temp<-list_rets[[j]][,-c(1,3)]
-        log_time<-temp_time %in% list_rets[[j]]$time
+        log_time<-temp_time %in% as.Date(list_rets[[j]]$time)
         log_vars<-match(colnames(rets_temp),colnames(sum_list))
         #colnames(list_rets[[j]])[-c(1,3)] %in% colnames(sum_list)
         #match(colnames(list_rets[[j]])[-c(1,3)],colnames(sum_list))

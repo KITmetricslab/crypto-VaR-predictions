@@ -7,8 +7,8 @@ library(rugarch)
 
 
 
-load("../../Cleaned_Data/Forecasts/Crypto_Data_Raw.RData")
-source("Forecast_Functions.R")
+load("Cleaned_Data/Forecasts/Crypto_Data_Raw.RData")
+source("Forecasts/Forecast_Functions.R")
 
 tau <- 0.05
 window_length <- 500
@@ -50,7 +50,7 @@ list_final<-foreach(j=1:length(crypto_data_cleaned),.combine = list,.multicombin
     list_fc <- list()
     for (i in 1:oos_period) {
       print(paste0(i, " out of ", oos_period))
-      set.seed(20220427 + i)
+      set.seed(20240422 + i)
       df_fit <- df_crypto[i:(effective_est_window + i - 1), ]
       df_pred <- df_crypto[effective_est_window + i, ]
       
@@ -67,14 +67,14 @@ stopCluster(cl)
 names(list_final) <- names(crypto_data_cleaned)
 
 name_list <- paste0("List_final_", tau, "_", Sys.Date())
-file_path <- "../../Cleaned_Data/Forecasts/"
+file_path <- "Cleaned_Data/Forecasts/"
 save(list_final, file = paste0(file_path, name_list, ".RData"))
 
 ###########################
 #list_final umformen um Evaluation durchführen zu können
 ###########################
 final_data <- vector("list", length(list_final))
-exclude_names <- c("Var_imp_qr") #"Var_imp_grf", 
+exclude_names <- c("Var_imp_grf") #"Var_imp_qr", 
 values <- names(list_final[[1]]$fc_ml[[1]])
 values_forecasts <- setdiff(values, exclude_names)
 values_var_imp <- exclude_names
@@ -122,7 +122,7 @@ for (j in seq_along(list_final)) {
 names(final_data) <- names(list_final)
 
 name_list <- paste0("final_data_", tau, "_", Sys.Date())
-file_path <- "../../Cleaned_Data/Forecasts/"
+file_path <- "Cleaned_Data/Forecasts/"
 save(final_data, file = paste0(file_path, name_list, ".RData"))
 
 

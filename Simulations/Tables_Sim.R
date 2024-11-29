@@ -2,7 +2,7 @@
 
 library(xtable)
 
-source("../Tests/Evaluation_Functions.R")
+source("Tests/Evaluation_Functions.R")
 
 ######################
 #Simulation Table new
@@ -14,38 +14,38 @@ Backtest_all<-vector("list",4)
 true_y<-vector("list",4)
 losses<-vector("list",4)
 names(Backtest_all)<-names(true_y)<-names(losses)<-c("GARCH_norm","GARCH_btc_asym_t","SAV","GARCH_VaryVola")
-load("../../Cleaned_Data/Simulations/history_length_500/Sim_0.05_GARCH_norm.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_500_GARCH_norm.RData")
 Backtest_all[[1]]<-list(Backtest)
 true_y[[1]]<-list(otherData)
 losses[[1]]<-list(results)
-load("../../Cleaned_Data/Simulations/history_length_500/Sim_0.05_GARCH_btc_asym_t.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_500_GARCH_btc_asym_t.RData")
 Backtest_all[[2]]<-list(Backtest)
 true_y[[2]]<-list(otherData)
 losses[[2]]<-list(results)
-load("../../Cleaned_Data/Simulations/history_length_500/Sim_0.05_SAV.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_500_SAV.RData")
 Backtest_all[[3]]<-list(Backtest)
 true_y[[3]]<-list(otherData)
 losses[[3]]<-list(results)
-load("../../Cleaned_Data/Simulations/history_length_500/Sim_0.05_500_GARCH_norm_Niklas_random_periods.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_500_GARCH_VaryVola.RData")
 Backtest_all[[4]]<-list(Backtest[[1]][1:63])
 true_y[[4]]<-list(otherData[[1]][1:63])
 losses[[4]]<-list(results[[1]][1:63])
 
 
 
-load("../../Cleaned_Data/Simulations/history_length_1000/Sim_0.05_1000_GARCH_norm.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_1000_GARCH_norm.RData")
 Backtest_all[[1]][[2]]<-Backtest[[1]]
 true_y[[1]][[2]]<-otherData[[1]]
 losses[[1]][[2]]<-results[[1]]
-load("../../Cleaned_Data/Simulations/history_length_1000/Sim_0.05_1000_GARCH_btc_asym_t.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_1000_GARCH_btc_asym_t.RData")
 Backtest_all[[2]][[2]]<-Backtest[[1]]
 true_y[[2]][[2]]<-otherData[[1]]
 losses[[2]][[2]]<-results[[1]]
-load("../../Cleaned_Data/Simulations/history_length_1000/Sim_0.05_1000_SAV.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_1000_SAV.RData")
 Backtest_all[[3]][[2]]<-Backtest[[1]]
 true_y[[3]][[2]]<-otherData[[1]]
 losses[[3]][[2]]<-results[[1]]
-load("../../Cleaned_Data/Simulations/history_length_1000/Sim_0.05_1000_GARCH_norm_Niklas.RData")
+load("Cleaned_Data/Simulations/Sim_0.05_1000_GARCH_VaryVola.RData")
 Backtest_all[[4]][[2]]<-Backtest[[1]]
 true_y[[4]][[2]]<-otherData[[1]]
 losses[[4]][[2]]<-results[[1]]
@@ -56,6 +56,8 @@ for(j in 1:length(Backtest_all)){
   names(true_y[[j]])<-c(500,1000)
 }
 tau<-0.05 # for Rejection Rates
+
+#save(Backtest_all,true_y,losses, file = "Cleaned_Data/Simulations/Sim_all_R.RData")
 ##
 #BACKTESTS
 
@@ -74,8 +76,8 @@ fun_bt_extr<-function(list_bt)
 #Make one result table for DQ test
 num_proc<-length(Backtest_all[[2]][[1]][[1]])
 names(Backtest_all[[2]][[1]][[1]])
-n_iterations <- list(sapply(true_y[1:6], function(x) length(x[[1]])),
-                     sapply(true_y[1:6], function(x) length(x[[2]])))
+n_iterations <- list(sapply(true_y[1:4], function(x) length(x[[1]])),
+                     sapply(true_y[1:4], function(x) length(x[[2]])))
 
 Final_pval<-Final_rejRate<-vector(mode="list",4)
 Final_GW<-vector(mode="list",4)
@@ -150,6 +152,10 @@ for(i in 1:4)#length(Backtest_all)) #all different simulation setups
   Final_GW_perf[[i]]<-GW_all_perf
 }
 
+#######################################
+## Simulation Backtests
+## Table 4
+
 #create Backtest Table with parentheses
 Backtest_mat<-matrix(NA,nrow=num_proc*4,ncol=4*2)
 rowcount<-1
@@ -173,16 +179,19 @@ for(proc in 1:4)
   }
   
 }
-names_proc<-rep(c("QRF","GRF","QR","Hist","NormFit","CAV","CAV\\_ASY","GARCH(1,1)","GJR-GARCH"),6)
+names_proc<-rep(c("QRF","GRF","QR","Hist","NormFit","CAV","CAV_ASY","GARCH(1,1)","GJR-GARCH"),4)
 Backtest_print<-data.frame(Names=names_proc,Backtest_mat)
 Backtest_print<-rbind(c("NAMES",rep(c("DQ","Kupiec","Christoffersen","AoE"),2)),Backtest_print)
 print(xtable(Backtest_print),sanitize.text.function = identity,include.rownames = FALSE,include.colnames = FALSE)
 
 
 
-##
+###########################
+## CPA-test on VaR predictions of Simulations
+## Table 5
+
 #GW-Test Table
-final_tab<-matrix(NA,ncol=6,nrow=18)
+final_tab<-matrix(NA,ncol=6,nrow=12)
 for(i in 1:6)
 {
   for(j in 1:2)#2
@@ -197,8 +206,8 @@ for(i in 1:6)
   
 }
 final_tab
-names_rows<-rep(c("Mean P-Value", "No. P-values < 0.1","GRF-Performance"),6)
-names_col<-rep(c("QR","Hist","CAV\\_SAV"),2)
+names_rows<-rep(c("Mean P-Value", "No. P-values < 0.1","GRF-Performance"),4)
+names_col<-rep(c("QR","Hist","CAV"),2)
 final_print<-data.frame(Names=names_rows,round(final_tab,3))
 final_print<-rbind(c("GRF vs.",names_col),final_print)
 print(xtable(final_print,digits=3),sanitize.text.function = identity,include.rownames = FALSE,include.colnames = FALSE)

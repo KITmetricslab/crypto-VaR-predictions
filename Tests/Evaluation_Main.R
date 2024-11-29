@@ -15,16 +15,11 @@ for (pkg in packages) {
 }
 
 ################################################
-# Working Directory setzen und Daten laden
-################################################
-# Den Pfad der aktuellen Datei ermitteln und als Arbeitsverzeichnis festlegen
-current_path <- rstudioapi::getActiveDocumentContext()$path
-setwd(dirname(current_path))
 
 # Load crypto data
-load("../../Cleaned_Data/Forecasts/final_data_0.05_2024-05-13_all.RData") #final_data
-load("../../Cleaned_Data/Forecasts/Crypto_Data_add.RData") #list_rets
-source("Evaluation_Functions.R")
+load("Cleaned_Data/Forecasts/final_data_combined_0.05_500_2024-11-20.RData") #final_data
+load("Cleaned_Data/Forecasts/Crypto_Data_add.RData") #list_rets
+source("Tests/Evaluation_Functions.R")
 
 
 ################################################
@@ -33,8 +28,7 @@ source("Evaluation_Functions.R")
 period <- c("2015-08-22", "2017-12-21", "2020-11-05", "2023-01-01", "2024-04-06")
 
 # Liefert eine große Liste wo die Forecasts nach Perioden sortiert enthalten sind
-Period_Data <- getPeriodData(final_data, period)
-save(Period_Data, file=paste0("../../Cleaned_Data/Tests/4 Periods/Crypto_Data_Periods_Rebekka.RData"))
+Period_Data <- getPeriodData(final_data_combined, period)
 
 # Perioden als Vektoren von Datumsangaben
 period1 <- as.Date(seq(as.Date(period[1]), as.Date(period[2]), by = "1 day"))[-length(as.Date(seq(as.Date(period[1]), as.Date(period[2]), by = "1 day")))]
@@ -50,7 +44,7 @@ period_3_final_data <- Period_Data$`Period 3`
 period_4_final_data <- Period_Data$`Period 4`
 # Signifikanzniveau tau
 tau <- 0.05
-n_cryptos <- length(final_data)
+n_cryptos <- length(final_data_combined)
 
 ################################################
 # Tests durchführen DQ-Test, AoE-Test
@@ -68,7 +62,7 @@ for(i in 1:5){
                         period_2_final_data,
                         period_3_final_data,
                         period_4_final_data,
-                        final_data)
+                        final_data_combined)
   # Hier werden die Testergebnisse für die entsprechende Periode gespeichert
   test_results <- vector("list", length(period_data))
   
@@ -98,7 +92,7 @@ for(i in 1:5){
                       Christoffesen = BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$QR_base)), tau)$LRcc[2],
                       AoE = BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$QR_base)), tau)$AE)
     }, error = function(e) {
-      cat("Fehler aufgetreten für crypto ", names(period_data)[j], " bei der Berechnung von QR: ", conditionMessage(e), "\n")
+      cat("Fehler aufgetreten für crypto ", names(period_data)[j], " bei der Berechnung von QR_base: ", conditionMessage(e), "\n")
       return()
     })
     
@@ -110,11 +104,16 @@ for(i in 1:5){
                 AoE = BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$CAV)), tau)$AE)
     
     #CAV_ASY
+    tryCatch({
     CAV_ASY <- list(DQ_Custom = as.numeric(BacktestVaR_DQ_Custom(crypto$True_Ret, rem_nan_na(unlist(crypto$CAV_ASY)), tau)$DQ$pvalue),
                 DQ = as.numeric(BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$CAV_ASY)), tau)$DQ$pvalue),
                 Kupiec = BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$CAV_ASY)), tau)$LRuc[2],
                 Christoffesen = BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$CAV_ASY)), tau)$LRcc[2],
                 AoE = BacktestVaR(crypto$True_Ret, rem_nan_na(unlist(crypto$CAV_ASY)), tau)$AE)
+    }, error = function(e) {
+      cat("Fehler aufgetreten für crypto ", names(period_data)[j], " bei der Berechnung von CAV_ASY: ", conditionMessage(e), "\n")
+      return()
+    })
     
     #GJR-GARCH
     GARCH_plain <- list(DQ_Custom = as.numeric(BacktestVaR_DQ_Custom(crypto$True_Ret, rem_nan_na(unlist(crypto$GARCH_plain)), tau)$DQ$pvalue),
@@ -190,7 +189,7 @@ for(i in 1:5){
   # Hier wird für jeden Test der Median berechnet und in einer Liste gespeichert
   
   Tests_Median <- list()
-  methods <- c("GRF_base", "QRF_base", "QR_base", "CAV", "GARCH_plain", "Hist", "GRF", "QRF", "QR", "GARCH_cov","CAV_ASY")
+  methods <- c("GRF_base", "QRF_base", "QR_base", "CAV","CAV_ASY", "GARCH_plain", "Hist", "GRF", "QRF", "QR", "GARCH_cov")
   tests <- c("DQ_Custom", "DQ", "Kupiec", "Christoffesen", "AoE")
   
   for (method in methods) {
@@ -207,12 +206,12 @@ for(i in 1:5){
   names(Tests_Median) <- methods
   Test_results_periods <- append(Test_results_periods, list(Tests_Median))
 }
-names(Test_results_periods) <- names(All_Tests_Results_Periods) <- c("Periode_1", "Periode_2", "Periode_3", "Periode_4", "Alle")
+names(Test_results_periods) <- names(All_Tests_Results_Periods) <- c("Period_1", "Period_2", "Period_3", "Period_4", "All")
 
 file_name <- paste0("Backtests_4_Periods_",tau,"_",n_cryptos,"_", Sys.Date())
-save(Test_results_periods, file=paste0("../../Cleaned_Data/Tests/4 Periods/",file_name,".RData"))
+save(Test_results_periods, file=paste0("Cleaned_Data/Tests/",file_name,".RData"))
 
-save(All_Tests_Results_Periods, file=paste0("../../Cleaned_Data/Tests/4 Periods/All_Tests_Results_Periods.RData"))
+save(All_Tests_Results_Periods, file=paste0("Cleaned_Data/Tests/All_Tests_Results_Periods.RData"))
 
 
 ###########################
@@ -260,16 +259,18 @@ for (i in 1:5) {
 names(DQ_Results_Periods) <- names(All_Tests_Results_Periods)
 
 ###########################
-# Tabelle mit Median der pvalues berechnen
+## Medians of P-Values for DQ-Tests in Different Time Periods
+## Table 6
+## Table 10
 ###########################
 
 
 # Wenden Sie unlist() auf jedes Element der Liste an
-df_period_1 <- lapply(Test_results_periods$Periode_1, unlist)
-df_period_2 <- lapply(Test_results_periods$Periode_2, unlist)
-df_period_3 <- lapply(Test_results_periods$Periode_3, unlist)
-df_period_4 <- lapply(Test_results_periods$Periode_4, unlist)
-df_full <- lapply(Test_results_periods$Alle, unlist)
+df_period_1 <- lapply(Test_results_periods$Period_1, unlist)
+df_period_2 <- lapply(Test_results_periods$Period_2, unlist)
+df_period_3 <- lapply(Test_results_periods$Period_3, unlist)
+df_period_4 <- lapply(Test_results_periods$Period_4, unlist)
+df_full <- lapply(Test_results_periods$All, unlist)
 
 # Erstellen Sie Dataframes aus den Listen
 df_period_1 <- as.data.frame(do.call(cbind, df_period_1))
@@ -286,9 +287,8 @@ table_pvalues <- round(table_pvalues, 3)
 table_pvalues_latex <- xtable(table_pvalues)
 print(table_pvalues_latex, include.rownames = TRUE)
 
-##########################
-# Tabelle mit p-Werten sortiert nach SER usw.
-##########################
+
+##############################################################
 
 # Liste mit Indikatoren, welche Crypto in welcher Periode ist
 list_crypto_period <- vector(mode="list", 4)
@@ -306,9 +306,12 @@ list_crypto_period$`Period 1`$Time <- period1
 list_crypto_period$`Period 2`$Time <- period2
 list_crypto_period$`Period 3`$Time <- period3
 list_crypto_period$`Period 4`$Time <- period4
-save(list_crypto_period, file="../../Cleaned_Data/Tests/4 Periods/Crypto_ind_periods_4.RData")
+save(list_crypto_period, file="Cleaned_Data/Tests/Crypto_ind_periods_4.RData")
 
-
+##############################################
+## Boxplots of p-values of DQ-tests
+## Figure 2
+####################################
 list_nmax<-list(c(1,5,15,15),c(1,5,15,15), c(1,5,15,15)) #Anzahl der jeweils größten Werte
 name_vars<-c("SER","Active_Users", "sd_7") #Covariates nach denen sortiert werden soll
 list_periods<-vector(mode="list",4)
@@ -372,13 +375,15 @@ for (period in 1:4){
           text = element_text(size = 15))
   
   ggsave(paste0("Boxplot_4_Period_",period,"_",colnames(ind_temp_period)[sort_val],".pdf"),
-         path ="../../Results/Results Section/4 Periods/Boxplots",width=15,height=10,units="in",scale=0.7 )
+         path ="Plots/Boxplots",width=15,height=10,units="in",scale=0.7 )
   
 }
 names(list_periods) <- names(DQ_Results_Periods[1:4])
 
 ##########################
-# Tabellen mit fertig sortierten Werten
+## Medians of P-Values for DQ-Tests sorted by SER (and Active Users and SD_7)
+## Table 7
+## Table 10
 ##########################
 
 SER_sorted_median <- rbind(t(list_periods[[1]][[1]]),t(list_periods[[2]][[1]]),t(list_periods[[3]][[1]]),t(list_periods[[4]][[1]]))
@@ -387,8 +392,28 @@ SD_7_sorted_median <- rbind(t(list_periods[[1]][[3]]),t(list_periods[[2]][[3]]),
 
 SER_sorted_median_latex <- xtable(SER_sorted_median)
 print(SER_sorted_median_latex, include.rownames = TRUE)
-Active_Users_sorted_median_latex <- xtable(Active_Users_sorted_median)
-print(Active_Users_sorted_median_latex, include.rownames = TRUE)
-SD_7_sorted_median_latex <- xtable(SD_7_sorted_median)
-print(SD_7_sorted_median_latex, include.rownames = TRUE)
+
+#Active_Users_sorted_median_latex <- xtable(Active_Users_sorted_median)
+#print(Active_Users_sorted_median_latex, include.rownames = TRUE)
+
+#SD_7_sorted_median_latex <- xtable(SD_7_sorted_median)
+#print(SD_7_sorted_median_latex, include.rownames = TRUE)
+
+
+################################
+## summary table with DQ-values over time periods, and sorted by SER, Number of Users, SD_7
+## Table B.17
+#########
+identical(colnames(SER_sorted_median),colnames(Active_Users_sorted_median))
+all_sorted_median<- rbind(SER_sorted_median[1:6,],Active_Users_sorted_median[1:6,],SD_7_sorted_median[1:6,])
+high_group_ind<-seq(1,nrow(all_sorted_median),by=2)
+low_group_ind<-seq(2,nrow(all_sorted_median),by=2)
+all_median_hilo<-all_sorted_median[c(high_group_ind,low_group_ind),]
+
+caption_tab <-"Medians of P-Values for DQ-Tests Sorted by Covariate Values in Different Time Periods"
+tab_print_2<-xtable(all_median_hilo,label = "tab:median_pvals_sorted",caption=caption_tab)#,digits=c(0,0,3,rep(0,4),3,0,rep(3,5),0))#display = c("s",rep("d",7)))
+print.xtable(tab_print_2,type="latex",
+             floating=TRUE,include.rownames=FALSE,caption.placement = "top",
+             comment=TRUE,booktabs = TRUE)
+
 

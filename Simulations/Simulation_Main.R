@@ -1,6 +1,6 @@
 
 # Liste der benötigten Pakete
-required_packages <- c("quantregForest", "grf", "GAS", "DEoptim", "ggplot2", 
+required_packages <- c("quantregForest", "grf", "GAS", "DEoptim", "ggplot2", "quantreg",
                        "reshape2", "PerformanceAnalytics", "rugarch", "foreach", "doParallel", "doSNOW","tvgarch")
 
 # Funktion zum Installieren und Laden der Pakete
@@ -18,17 +18,13 @@ for (package in required_packages) {
 
 
 ################################################
-# Working Directory setzen und Daten laden
-################################################
-# Den Pfad der aktuellen Datei ermitteln und als Arbeitsverzeichnis festlegen
-current_path <- rstudioapi::getActiveDocumentContext()$path
-setwd(dirname(current_path))
+
 
 #source CAVIAR files and functions for model generation
-source("Simulation_Functions.R")
+source("Simulations/Simulation_Functions.R")
 
 #btc data
-load(file="../../Cleaned_Data/Forecasts/Crypto_Data_add.RData")
+load(file="Cleaned_Data/Forecasts/Crypto_Data_add.RData")
 btc_data<-list_rets$btc$Ret
 
 ####################################
@@ -208,14 +204,7 @@ for(q in 1:length(history_lengths)){
     close(pb)
     print(paste0("Iteration ", m, " von ", iterations, " abgeschlossen", Sys.time()))
     
-    #i<- calc_length
-    #X_ac   <- X[i:(history_length+i-1),]
-    #Y_ac   <- Y[i:(history_length+i-1)]
-    #X_pred <- X[history_length+i,]
-    #Y_pred <- Y[history_length+i]
-    
-    #check for NA and NaN:
-    #sum_nan<-apply(finalMatrix,2,function(x) sum(is.nan(x)))
+
     sum_na<-apply(finalMatrix,2,function(x) sum(is.na(x)))
     which_na<-apply(finalMatrix,2,function(x) (is.na(x)))
     
@@ -225,29 +214,14 @@ for(q in 1:length(history_lengths)){
     otherData[[q]][[m]] <- data_ret_raw[(history_length+tail(sa_lengths,n=1)+1):lengthOfObs]
     
     
-    #In-sample fit
-    
-    # #quantregForest
-    # quantregF <- quantregForest(x=X_ac, y=Y_ac, nodesize = minobs)
-    # quantregForest_quantiles_in    <- predict(quantregF, X_ac, what=tau)
-    # 
-    # #GRF
-    # q.forest <- quantile_forest(X_ac, Y_ac, quantiles = tau, min.node.size = minobs)
-    # grf_quantiles_in  <- predict(q.forest, X_ac,  quantiles= tau)
-    # 
-    # #Quantile Regression
-    # rqfit <- rq(Y_ac ~ X_ac$Standard_Dev_2 + X_ac$Standard_Dev_3 + X_ac$Standard_Dev_4 + X_ac$Lagged_Return, tau = tau)
-    # qr_quantiles_in <- as.matrix(cbind(rep(1,nrow(X_ac)),cbind(X_ac$Standard_Dev_2,X_ac$Standard_Dev_3,X_ac$Standard_Dev_4,X_ac$Lagged_Return))) %*% matrix(as.numeric(rqfit$coefficients), 5, 1)
-    # 
     backtest_df<-backtest_fun(otherData[[q]][[m]], results[[q]][[m]], tau)
     names(backtest_df)<-c("QRF","GRF","QR","Hist","VarCov","CAV_SAV","CAV_ASY","GARCH","GJRGARCH")
     Backtest[[q]][[m]] <- backtest_df
-    fileName <- paste0("../../Cleaned_Data/Simulations/history_length_500/Sim_",tau,"_500_",which_model)
+    fileName <- paste0("Cleaned_Data/Simulations/Sim_",tau,"_500_",which_model)
     save.image(paste0(fileName,".RData"))
   }
 }
 
 
-fileName <- paste0("../../Cleaned_Data/Simulations/history_length_500/Sim_",tau,"_500_",which_model)
+fileName <- paste0("Cleaned_Data/Simulations/Sim_",tau,"_500_",which_model)
 save.image(paste0(fileName,".RData"))
-#}
