@@ -14,7 +14,7 @@ The data of the 106 cryptocurrencies from the paper that was downloaded and proc
 
 
 COMPUTATION
-The analyses were run on R 4.1.2 and we use the following packages: quantreg (5.99.1), quantregForest(7.1), doParallel (1.0.17), doSNOW (1.0.20), grf (2.4.0), DEoptim(2.2-8), ggplot2(3.5.1), reshape2(1.4.4), PerformanceAnalytics(2.0.4), ruarch(1.5-3), foreach(1.5.2), GAS(0.3.4.1), tidyr(1.3.1), dplyr(1.1.4), zoo(1.8-12), xts(0.14.1), scales(1.3.0), data.table(1.16.2), xtable(1.8-4), tseries(0.10-58), dygraphs(1.1.1.6).
+The analyses were run on R 4.1.2 and we use the following packages: quantreg (5.99.1), quantregForest(7.1), doParallel (1.0.17), doSNOW (1.0.20), grf (2.4.0), DEoptim(2.2-8), ggplot2(3.5.1), reshape2(1.4.4), PerformanceAnalytics(2.0.4), rugarch(1.5-3), MSGARCH(2.51), foreach(1.5.2), GAS(0.3.4.1), tidyr(1.3.1), dplyr(1.1.4), zoo(1.8-12), xts(0.14.1), scales(1.3.0), data.table(1.16.2), xtable(1.8-4), tseries(0.10-58), dygraphs(1.1.1.6).
 The paths in the files are relative to the root, so the working directory needs to be set accordingly or used as .Rproj.
 The simulations and the forecasts were computed on a standard CPU with 48 kernels using parallel computing. 
 The approximate runtime for the simulations with history length 500 is 2,5 days.
